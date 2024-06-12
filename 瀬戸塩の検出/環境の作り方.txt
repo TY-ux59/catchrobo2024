@@ -20,23 +20,38 @@ anaconda powershell promptを起動し、さっき作ったディレクトリに
 つぎのコマンドを順に実行
 
 pip install virtualenvironment
+(仮想環境作成のために用いる)
 
-conda --name raspienv python3.9       raspienvは他の名前にしてもいい
+conda --name raspienv python=3.9       raspienvは他の名前にしてもいい
 
 conda activate raspienv
 
 4
 
+下のコマンドを順番に実行する。
+
+pip install tflite-model-maker~=0.3.4 numpy~=1.23.5 
+
+pip install tensorflow-datasets==4.8.3
+
+pip install tflite_model_maker_nightly  （空白にはアンダーバーを入れる）
+
+（パソコン上で行うpythonの環境づくりについてはこれで終わりだが、したで実行するpythonのコードが実行できないならどこかでミスをしている可能性がある。）
+
+5
+
 gitで現在使っているディレクトリに移動する
 
 git clone https://github.com/tensorflow/examples
-cd examples/tensorflow_examples/lite/model_maker/pip_package
-pip3 install -e .
 
-上のコマンドでほぼ完成
+
+6
+
+次にpythonで学習を行う必要がある。
+学習のためのファイルは瀬戸塩の検出のフォルダ内にあるとおり
 
 //以降は後で書き足す
-5以降で行うのはアノテーションファイルの作成とそのファイルとtfliteを用いた検出の学習を行うためのファイルの作成と実行
+6以降で行うのはアノテーションファイルの作成とそのファイルとtfliteを用いた検出の学習を行うためのファイルの作成と実行
 うまく学習できたら拡張子がtfliteのファイルができる
 それができたらラズベリーパイにUSBなどで上のファイルを移動させ、次に、のシェルで上でクローンしたgitリポジトリをクローンし、最後にpython3.8の環境を作る
 それができたらリポジトリ上に検出用のファイルがあるのでそれを実行すると検出できるようになる。

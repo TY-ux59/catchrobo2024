@@ -1,0 +1,44 @@
+必要なもの
+
+python
+vscode　テキストエディタ
+anaconda　（環境構築に用いる）
+git （githubからリポジトリをクローンするために用いる）
+raspberrypi 
+
+
+1
+
+ディレクトリ名に日本語を含まないような位置に適当な名前のフォルダを作成する。
+
+2
+
+anaconda powershell promptを起動し、さっき作ったディレクトリに移動
+
+3
+
+つぎのコマンドを順に実行
+
+pip install virtualenvironment
+
+conda --name raspienv python3.9       raspienvは他の名前にしてもいい
+
+conda activate raspienv
+
+4
+
+gitで現在使っているディレクトリに移動する
+
+git clone https://github.com/tensorflow/examples
+cd examples/tensorflow_examples/lite/model_maker/pip_package
+pip3 install -e .
+
+上のコマンドでほぼ完成
+
+//以降は後で書き足す
+5以降で行うのはアノテーションファイルの作成とそのファイルとtfliteを用いた検出の学習を行うためのファイルの作成と実行
+うまく学習できたら拡張子がtfliteのファイルができる
+それができたらラズベリーパイにUSBなどで上のファイルを移動させ、次に、のシェルで上でクローンしたgitリポジトリをクローンし、最後にpython3.8の環境を作る
+それができたらリポジトリ上に検出用のファイルがあるのでそれを実行すると検出できるようになる。
+
+

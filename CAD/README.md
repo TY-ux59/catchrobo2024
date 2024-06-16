@@ -23,11 +23,21 @@ GitHub上でダウンロードしたいファイルを選択してください�
 
 ![upload2.png](./image/upload2.png)
 
+## データのエクスポート
+
+Fusion360でエクスポートを選択します。
+
+![export.png](./image/export.png)
+
+ファイル形式は.f3dにしておくと、Fusion360でそのまま取り込めます。
+
+![export2.png](./image/export2.png)
+
 ## ファイルの画像
 
 catchrobo_2023.stl
 
-![catchrobo_2023.png](./image/catchrobo_2023.png)
+![catchrobo_2023 v2.png](./image/catchrobo_2023%20v2.png)
 
 吸引機asm v4.png
 

@@ -1,0 +1,8 @@
+行いたいこと
+
+ラズベリーパイの瀬戸塩の検出プログラムで検出した種類をespのシリアルモニターに出力する。
+
+detect.py　ラズベリーパイにある検出プログラム
+	　exchangeInformation.pyにシリアルモニターに出力するためのデータをわたす用に修正
+
+exchangeInformation.py　esp32

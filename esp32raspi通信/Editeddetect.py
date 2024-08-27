@@ -20,6 +20,8 @@ import cv2
 from tflite_support.task import core
 from tflite_support.task import processor
 from tflite_support.task import vision
+
+###########################
 import Editedutils
 #追加
 import serial
@@ -33,6 +35,7 @@ def send_message(messages):
       message = message + ' ' + messages[i] 
     ser.write((message + '\n').encode())
 
+#########################
     
 def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
         enable_edgetpu: bool) -> None:
@@ -50,6 +53,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
   # Variables to calculate FPS
   counter, fps = 0, 0
   start_time = time.time()
+  categorie_names = []
 
   # Start capturing video input from the camera
   cap = cv2.VideoCapture(camera_id)
@@ -96,8 +100,26 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
     detection_result = detector.detect(input_tensor)
 
     # Draw keypoints and edges on input image
-    image, categorie_names = Editedutils.visualize(image, detection_result)
-    send_message(categorie_names)
+    image, categorie_name = Editedutils.visualize(image, detection_result)
+    
+    line = ser.readline().decode('utf-8').strip()
+    if line == 'constOpen':
+      run = True
+      while run:
+        line = ser.readline().decode('utf-8').strip()
+        if line == 'ret':
+          run = False
+      
+    categorie_names.append(categorie_name)
+    #categorie_namesが3回同じ物体を検出したとき命令を出す
+    if len(categorie_names) == 3:
+      if categorie_names[0] == categorie_names[1] and categorie_names[1] == categorie_names[2]:
+        send_message('M2close')
+        send_message(categorie_names[0] + 'M1')
+        categorie_names = []
+        #仕分け部分と同時に箱の開閉を行ったとき塞ぐのが間に合わないかもしれないため0.5秒待つ。この時間については要検討
+        time.sleep(0.5)
+        send_message('M2open')
 
     # Calculate the FPS
     if counter % fps_avg_frame_count == 0:

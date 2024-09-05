@@ -1,4 +1,4 @@
-# Copyright 2021 The TensorFlow Authors. All Rights Reserved.
+89i9+++------# Copyright 2021 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
   """Continuously run inference on images acquired from the camera.
 
   Args:
-    model: Name of the TFLite object detection model.
+    model: Na+me of the TFLite object detection model.
     camera_id: The camera id to be passed to OpenCV.
     width: The width of the frame captured from the camera.
     height: The height of the frame captured from the camera.

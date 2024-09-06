@@ -158,43 +158,6 @@ void PS4_control() {
     }
     digitalWrite(DIR3, HIGH);
 
-  //消してもいいのか  
-  } else if (PS4.Touchpad()) {
-    rotation3 = 0;
-    int i = 0;
-    while (i <= 40) {
-      if (PS4.PSButton()) break;
-      valE = JudgeHighLow(digitalRead(pin1_encoder3));
-      valF = JudgeHighLow(digitalRead(pin2_encoder3));
-      rotation3 = rotalyEncoder(valE, valF, preValE, preValF, pin1_encoder3, pin2_encoder3, rotation3);
-      preValE = valE;
-      preValF = valF;
-      ledcWrite(0, pid(rotation3, goal3));
-      if (goal3 - rotation3 >= 0 && rotation3 >= -3) {
-        digitalWrite(DIR4, LOW);
-      } else {
-        digitalWrite(DIR4, HIGH);
-      }
-      if (abs(rotation3 - goal3) <= 10) {
-        i++;
-      } else i = 0;
-    }
-    i = 0;
-    ledcWrite(0, 0);
-    sumDif = 0;
-    preDif = 0;
-
-  } else if (PS4.Circle()) {
-    //Ebiを取るときに開けっぱなしにする
-    //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
-  } else if (PS4.Square()) {
-    //Yuzuを取るときに開けっぱなしにする
-    //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
-  } else if (PS4.Triangle()) {
-    //Noriを取るときに開けっぱなしにする
-    //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
-  } else if (PS4.Cross()) {
-    //そうじ機で吸う
   }
 
   //Serial.printf("Right Stick y at %d\n", PS4.RStickY());

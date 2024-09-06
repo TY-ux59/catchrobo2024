@@ -6,7 +6,7 @@ void setup() {
   Servo servo;
   servo.attach(9);  //サーボモーターの制御信号ピンを指定
   const char match1 = "M1";
-  const char match2 = "openConst"
+  const char match2 = "constOpen"
   servo.write(0);
 }
 

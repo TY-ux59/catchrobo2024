@@ -1,0 +1,6 @@
+recieveMessageMotor2とesc（掃除機）にps4のライブラリを用いたので
+macアドレス？の割り当て
+
+各機体の停止時間
+
+

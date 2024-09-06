@@ -36,7 +36,7 @@ pip install tensorflow-datasets==4.8.3
 
 pip install tflite_model_maker_nightly  （空白にはアンダーバーを入れる）
 
-（パソコン上で行うpythonの環境づくりについてはこれで終わりだが、したで実行するpythonのコードが実行できないならどこかでミスをしている可能性がある。）
+（パソコン上で行うpythonの環境づくりについてはこれで終わり）
 
 5
 

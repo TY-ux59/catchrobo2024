@@ -4,9 +4,9 @@
 void setup() {
   Serial.begin(115200);
   Servo servo;
-  servo.attach(9);  //サーボモーターの制御信号ピンを指定
-  const char match1 = "M1";
-  const char match2 = "constOpen"
+  servo.attach(25);  //サーボモーターの制御信号ピンを指定
+  const String match1 = "M1";
+  const String match2 = "constOpen"
   servo.write(0);
 }
 

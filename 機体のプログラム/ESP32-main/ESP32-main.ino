@@ -80,32 +80,32 @@ void loop() {
       ledcWrite(0, 100);
       digitalWrite(DIR4, HIGH);
       break;
-    //機体を前後  
+    //機体を前後
     case 'c':
       ledcWrite(0, 100);
       digitalWrite(DIR4, LOW);
       break;
-    //機体を前後  
+    //機体を前後
     case 'e':
       ledcWrite(0, 200);
       digitalWrite(DIR4, LOW);
       break;
-    //回転  
+    //回転
     case 'h':
       ledcWrite(1, 200);
       digitalWrite(DIR1, LOW);
       break;
-    //回転  
+    //回転
     case 'i':
       ledcWrite(1, 100);
       digitalWrite(DIR1, LOW);
       break;
-    //回転  
+    //回転
     case 'k':
       ledcWrite(1, 100);
       digitalWrite(DIR1, HIGH);
       break;
-    //回転  
+    //回転
     case 'm':
       ledcWrite(1, 200);
       digitalWrite(DIR1, HIGH);
@@ -116,8 +116,6 @@ void loop() {
   Serial.print(can_receive);
 
   PS4_control();
-  
-
 }
 
 
@@ -158,6 +156,10 @@ void PS4_control() {
     }
     digitalWrite(DIR3, HIGH);
 
+  } else {
+    CAN.beginPacket(0x12);
+    CAN.write('n');
+    CAN.endPacket();
   }
 
   //Serial.printf("Right Stick y at %d\n", PS4.RStickY());

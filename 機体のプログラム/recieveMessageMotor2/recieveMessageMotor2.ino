@@ -5,7 +5,7 @@
 void setup() {
   Serial.begin(115200);
   Servo servo;
-  servo.attach(9);
+  servo.attach(26);
   servo.write(45);
 }
 

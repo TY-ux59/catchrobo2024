@@ -22,6 +22,7 @@ char can_receive = ' ';
 char pre_can_receive = ' ';
 char pre_can_send = ' ';
 bool handOnce = 0;
+bool constState = false;
 
 void setup() {
   Motor_stop();
@@ -39,14 +40,14 @@ void setup() {
 void loop() {
   handOnce = 0;
 
-  Serial.print(" R1: ");
+  /*Serial.print(" R1: ");
   Serial.println(rotation1, DEC);
   Serial.print(" R2: ");
   Serial.println(rotation2, DEC);
   Serial.print(" R3: ");
   Serial.println(rotation3, DEC);
   Serial.print(" angleA: ");
-  Serial.println(angleA, DEC);
+  Serial.println(angleA, DEC);*/
   CAN_packet();
   can_receive = CAN_receive();
 
@@ -114,7 +115,6 @@ void loop() {
       Motor_stop();
   }
   Serial.print(can_receive);
-
   PS4_control();
 }
 
@@ -156,10 +156,97 @@ void PS4_control() {
     }
     digitalWrite(DIR3, HIGH);
 
+  } else if (PS4.Cross()) {
+    Serial.println("CrossButton");
+    CAN.beginPacket(0x12);
+    CAN.write('m');
+    delay(100);
+    CAN.endPacket();
+  } else if (PS4.Circle()) {
+    //vacuumBoardフォルダにcan通信
+    Serial.println("Circle");
+    CAN.beginPacket(0x12);
+    CAN.write('0');
+    delay(100);
+    CAN.endPacket();
+
+    //Ebiを取るときに開けっぱなしにする
+    //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
+    if (constState == false) {
+      Serial.println("constOpen");
+      constState = true;
+    } else {
+      Serial.println("ret");
+      constState = false;
+    }
+
+  } else if (PS4.Square()) {
+    //vacuumBoardフォルダにcan通信
+    Serial.println("Square");
+    CAN.beginPacket(0x12);
+    CAN.write('3');
+    delay(100);
+    CAN.endPacket();
+
+    //Yuzuを取るときに開けっぱなしにする
+    //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
+    Serial.println("constOpen");
+    //モーター（仕分け）に指示
+    Serial.println("YuzuM1");
+  } else if (PS4.Triangle()) {
+    //vacuumBoardフォルダにcan通信
+    Serial.println("Triangle");
+    CAN.beginPacket(0x12);
+    CAN.write('4');
+    delay(100);
+    CAN.endPacket();
+
+    //Noriを取るときに開けっぱなしにする
+    //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
+    Serial.println("constOpen");
+    //モーター（仕分け）に指示
+    Serial.println("NoriM1");
   } else {
+    Serial.println('n');
     CAN.beginPacket(0x12);
     CAN.write('n');
+    delay(100);
     CAN.endPacket();
+  }
+
+  //ラズベリーパイとのシリアル通信
+  if (Serial.available() > 0) {
+    String receivedMessage = Serial.readStringUntil('\n');
+
+    if (receivedMessage == "M2close") {
+      CAN.beginPacket(0x12);
+      CAN.write('5');
+      delay(100);
+      CAN.endPacket();
+    }
+    if (receivedMessage == "M2Open") {
+      CAN.beginPacket(0x12);
+      CAN.write('6');
+      delay(100);
+      CAN.endPacket();
+    }
+
+    if (receivedMessage == "EbiM1") {
+      CAN.beginPacket(0x12);
+      CAN.write('7');
+      delay(100);
+      CAN.endPacket();
+    } else if (receivedMessage == "YuzuM1") {
+      CAN.beginPacket(0x12);
+      CAN.write('8');
+      delay(100);
+      CAN.endPacket();
+    } else if (receivedMessage == "NoriM1") {
+      CAN.beginPacket(0x12);
+      CAN.write('9');
+      delay(100);
+      CAN.endPacket();
+    }
   }
 
   //Serial.printf("Right Stick y at %d\n", PS4.RStickY());

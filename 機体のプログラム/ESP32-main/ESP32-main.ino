@@ -68,7 +68,7 @@ void setup() {
 
   Serial.println("Writing minimum output");
   esc_1.writeMicroseconds(minUs1);  //ESCへ最小のパルス幅を指示します
-  servo2.write(45);
+  servo2.write(10);
 
   Serial.println("Wait 8 seconds. Then motor starts");
   delay(8000);
@@ -122,7 +122,7 @@ void PS4_control() {
     if (constState == false) {
       Serial.println("constOpen");
       //開いている状態を維持するかどうか
-      servo2.write(45);
+      servo2.write(10);
       servo3.write(30);
       delay(250);
       constState = true;
@@ -139,7 +139,7 @@ void PS4_control() {
     //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
     if (constState == false) {
       Serial.println("constOpen");
-      servo2.write(45);
+      servo2.write(10);
       constState = true;
       servo3.write(60);
       delay(250);
@@ -154,7 +154,7 @@ void PS4_control() {
     //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
     if (constState == false) {
       Serial.println("constOpen");
-      servo2.write(45);
+      servo2.write(10);
       constState = true;
       servo3.write(90);
       delay(250);
@@ -179,7 +179,7 @@ void PS4_control() {
       delay(100);
     }
     if (receivedMessage == "M2Open") {
-      servo2.write(45);
+      servo2.write(10);
       delay(100);
     }
 

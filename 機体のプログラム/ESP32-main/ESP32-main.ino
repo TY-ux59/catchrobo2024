@@ -1,16 +1,12 @@
 //PS4Controller.hを使用するため、ESP32のバージョンは1.0.6推奨
 //PS4Controller.hに関するページ（環境構築）：https://404background.com/program/esp32-dualshock4/
 //PS4Controller.hに関するページ（修正後ライブラリ）：https://404background.com/program/esp32-dualshock4-library/
-//https://github.com/sandeepmistry/arduino-CAN
-//https://github.com/404background/PS4-esp32
-// https://youtu.be/CZ6PzQZE84U
-// for Arduino Uno
+//CAN.hのライブラリ：https://github.com/sandeepmistry/arduino-CAN
+//PS4Controller.hのライブラリ：https://github.com/404background/PS4-esp32
 
 #include <PS4Controller.h>
 #include <CAN.h>
-#include "RotalyEncoder.h"
 #include "MotorDriver.h"
-#include "Auto.h"
 #include "CAN_receive.h"
 #include <ESP32Servo.h>
 #include <stdio.h>
@@ -25,13 +21,14 @@ int preLStickX = 0;
 char can_receive = ' ';
 char pre_can_receive = ' ';
 char pre_can_send = ' ';
-bool handOnce = 0;
 bool constState = false;
 
 //サーボ諸々
 ESP32PWM pwm;
-
-#define ESC_PIN_1 25  //ESCへの出力ピン
+const int escPin1 = 25;
+const int servoPin2 = 26;
+const int servoPin3 = 27;
+const int servoPin4 = 16;  //仮決定
 
 char message[50];  //シリアルモニタへ表示する文字列を入れる変数
 
@@ -54,19 +51,20 @@ void setup() {
 
   pinMode(32, INPUT);
   //サーボモーターの制御信号ピンを指定
-  //そうじ機のモーター
-  servo3.attach(16);
   //仕分けのモーター
-  servo2.attach(26);
-  servo4.attach(27);
+  servo2.attach(servoPin2);
+  //そうじ機のモーター
+  servo3.attach(servoPin3);
+  //仕分け機移動のモーター
+  servo4.attach(servoPin4);
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
   ESP32PWM::allocateTimer(2);
   ESP32PWM::allocateTimer(3);
   pwm.attachPin(27, 20000);  //10khz
 
-  esc_1.setPeriodHertz(servoHz);            // Standard 50hz servo
-  esc_1.attach(ESC_PIN_1, minUs1, maxUs1);  //ESCへの出力ピンをアタッチします
+  esc_1.setPeriodHertz(servoHz);          // Standard 50hz servo
+  esc_1.attach(escPin1, minUs1, maxUs1);  //ESCへの出力ピンをアタッチします
 
   Serial.println("Writing minimum output");
   esc_1.writeMicroseconds(minUs1);  //ESCへ最小のパルス幅を指示します
@@ -76,91 +74,11 @@ void setup() {
   delay(8000);
 
   MotorDriver_setup();
-  RotalyEncoderSetup();
-  if (!CAN.begin(500E3)) {
-    Serial.println("Starting CAN failed!");
-  }
   preMillis = millis();
 }
 void loop() {
-  handOnce = 0;
-
-  /*Serial.print(" R1: ");
-  Serial.println(rotation1, DEC);
-  Serial.print(" R2: ");
-  Serial.println(rotation2, DEC);
-  Serial.print(" R3: ");
-  Serial.println(rotation3, DEC);
-  Serial.print(" angleA: ");
-  Serial.println(angleA, DEC);*/
-  CAN_packet();
-  can_receive = CAN_receive();
-
-  switch (can_receive) {
-    //up
-    case 'j':
-      digitalWrite(PWM2, HIGH);
-      digitalWrite(DIR2, HIGH);
-      break;
-    //down
-    case 'v':
-      digitalWrite(PWM2, HIGH);
-      digitalWrite(DIR2, LOW);
-      break;
-    //棒を前へ
-    case 'u':
-      digitalWrite(PWM3, HIGH);
-      digitalWrite(DIR3, HIGH);
-    //棒を後ろへ
-    case 'd':
-      digitalWrite(PWM3, HIGH);
-      digitalWrite(DIR3, LOW);
-      break;
-    //機体を前後
-    case 'b':
-      ledcWrite(0, 200);
-      digitalWrite(DIR4, HIGH);
-      break;
-    //機体を前後
-    case 'a':
-      ledcWrite(0, 100);
-      digitalWrite(DIR4, HIGH);
-      break;
-    //機体を前後
-    case 'c':
-      ledcWrite(0, 100);
-      digitalWrite(DIR4, LOW);
-      break;
-    //機体を前後
-    case 'e':
-      ledcWrite(0, 200);
-      digitalWrite(DIR4, LOW);
-      break;
-    //回転
-    case 'h':
-      ledcWrite(1, 200);
-      digitalWrite(DIR1, LOW);
-      break;
-    //回転
-    case 'i':
-      ledcWrite(1, 100);
-      digitalWrite(DIR1, LOW);
-      break;
-    //回転
-    case 'k':
-      ledcWrite(1, 100);
-      digitalWrite(DIR1, HIGH);
-      break;
-    //回転
-    case 'm':
-      ledcWrite(1, 200);
-      digitalWrite(DIR1, HIGH);
-      break;
-    default:
-      Motor_stop();
-  }
-  Serial.print(can_receive);
   PS4_control();
+  Motor_stop();
 }
 
 
@@ -168,37 +86,23 @@ void PS4_control() {
   //PS4のコントローラ用
   //機体を取る部分を上げ下げする
   if (PS4.Up()) {  //motor2 forward.
-    //Serial.println("L1 Button");
-    if (can_receive == 'y') {
-      digitalWrite(PWM2, LOW);
-    } else {
-      digitalWrite(PWM2, HIGH);
-    }
+                   //Serial.println("L1 Button");
+    digitalWrite(PWM2, HIGH);
+
     digitalWrite(DIR2, LOW);
   } else if (PS4.Down()) {  //motor2 backward.
     //Serial.println("L2 Button");
-    if (can_receive == 'y') {
-      digitalWrite(PWM2, LOW);
-    } else {
-      digitalWrite(PWM2, HIGH);
-    }
+    digitalWrite(PWM2, HIGH);
+
     digitalWrite(DIR2, HIGH);
     //棒を前後
   } else if (PS4.L2()) {  //motor3 up.
     //Serial.println("R1 Button");
-    if (can_receive == 'z') {
-      digitalWrite(PWM3, LOW);
-    } else {
-      digitalWrite(PWM3, HIGH);
-    }
+    digitalWrite(PWM3, HIGH);
     digitalWrite(DIR3, LOW);
   } else if (PS4.R2()) {  //motor down.
     //Serial.println("R2 Button");
-    if (can_receive == 'z') {
-      digitalWrite(PWM3, LOW);
-    } else {
-      digitalWrite(PWM3, HIGH);
-    }
+    digitalWrite(PWM3, HIGH);
     digitalWrite(DIR3, HIGH);
 
   } else if (PS4.Cross()) {

@@ -172,6 +172,7 @@ void PS4_control() {
 
     //Ebiを取るときに開けっぱなしにする
     //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
+    //constStateは開けっ放しかどうかtrueであきっぱなし
     if (constState == false) {
       Serial.println("constOpen");
       constState = true;
@@ -190,9 +191,13 @@ void PS4_control() {
 
     //Yuzuを取るときに開けっぱなしにする
     //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
-    Serial.println("constOpen");
-    //モーター（仕分け）に指示
-    Serial.println("YuzuM1");
+    if (constState == false) {
+      Serial.println("constOpen");
+      constState = true;
+    } else {
+      Serial.println("ret");
+      constState = false;
+    }
   } else if (PS4.Triangle()) {
     //vacuumBoardフォルダにcan通信
     Serial.println("Triangle");
@@ -203,14 +208,17 @@ void PS4_control() {
 
     //Noriを取るときに開けっぱなしにする
     //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
-    Serial.println("constOpen");
-    //モーター（仕分け）に指示
-    Serial.println("NoriM1");
+    if (constState == false) {
+      Serial.println("constOpen");
+      constState = true;
+    } else {
+      Serial.println("ret");
+      constState = false;
+    }
   } else {
     Serial.println('n');
     CAN.beginPacket(0x12);
     CAN.write('n');
-    delay(100);
     CAN.endPacket();
   }
 

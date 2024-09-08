@@ -25,10 +25,9 @@ int maxUs1 = 2000;
 int volume = minUs1;
 
 char can_receive = ' ';
+char precan_receive = ' ';
 
 bool constState = false;
-
-
 
 //サブコアでの処理
 void SubProcess(void* pvParameters) {
@@ -38,8 +37,10 @@ void setup() {
   Serial.begin(115200);
   pinMode(32, INPUT);
   //サーボモーターの制御信号ピンを指定
-  servo2.attach(25);
-  servo3.attach(26);
+  //そうじ機のモーター
+  servo2.attach(26);
+  //仕分けのモーター
+  servo3.attach(25);
   servo4.attach(27);
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
@@ -56,7 +57,7 @@ void setup() {
   Serial.println("Wait 8 seconds. Then motor starts");
   delay(8000);
 
-  servo3.write(45);
+  servo2.write(45);
 
   while (!CAN.begin(500E3)) {
     Serial.println("Starting CAN failed!");
@@ -81,39 +82,40 @@ void loop() {
         esc_1.writeMicroseconds(volume);                        // パルス幅 `volume` のPWM信号を送信する
       }
     } else if (constState == true && ((can_receive == '0') || (can_receive == '3') || (can_receive == '4'))) {
-      servo3.write(0);
+      if (precan_receive != can_receive) {
+        servo3.write(0);
+        Serial.println("hello");
+        delay(250);
+        constState = false;
+      }
+    } else if (can_receive == '0') {  
+      //開いている状態を維持するかどうか
+      Serial.println("good");
+      servo2.write(45);
+      constState = true;
+      servo3.write(30);
       delay(250);
-      constState = false;
+    } else if (can_receive == '3') {
+      servo2.write(45);
+      constState = true;
+      servo3.write(60);
+      delay(250);
+    } else if (can_receive == '4') {
+      servo2.write(45);
+      constState = true;
+      servo3.write(90);
+      delay(250);
     } else if (can_receive == 'n') {
       volume = 1000;
       esc_1.writeMicroseconds(volume);
     }
 
-    //開いている状態を維持するかどうか
-    if (can_receive == '0' && constState == false) {
-      servo2.write(45);
-      delay(250);
-      constState = true;
-      servo3.write(30);
-      delay(250);
-    } else if (can_receive == '3' && constState == false) {
-      servo2.write(45);
-      delay(250);
-      constState = true;
-      servo3.write(60);
-      delay(250);
-    } else if (can_receive == '4' && constState == false) {
-      servo2.write(45);
-      delay(250);
-      constState = true;
-      servo3.write(90);
-      delay(250);
-    }
 
     //ラズベリーパイによる開け閉めの判断
     //そうじ機についているモーター
     if (can_receive == '5') {
       servo2.write(0);
+      delay(100);
     } else if (can_receive == '6') {
       servo2.write(45);
     }
@@ -131,5 +133,9 @@ void loop() {
       delay(500);
       servo3.write(0);
     }
+
   }
+  precan_receive = can_receive;
+  Serial.println("precan_receivve: ");
+  Serial.println(precan_receive);
 }

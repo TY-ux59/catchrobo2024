@@ -65,6 +65,10 @@ void setup() {
 }
 
 void loop() {
+  while (!CAN.begin(500E3)) {
+    Serial.println("Starting CAN failed!");
+  }
+
   //can通信
   CAN.parsePacket();
   // そうじ機のモーターを1200から1300ぐらいにあげていきたい
@@ -88,7 +92,7 @@ void loop() {
         delay(250);
         constState = false;
       }
-    } else if (can_receive == '0') {  
+    } else if (can_receive == '0') {
       //開いている状態を維持するかどうか
       Serial.println("good");
       servo2.write(45);
@@ -133,7 +137,6 @@ void loop() {
       delay(500);
       servo3.write(0);
     }
-
   }
   precan_receive = can_receive;
   Serial.println("precan_receivve: ");

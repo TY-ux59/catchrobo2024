@@ -3,6 +3,8 @@
 //PS4Controller.hに関するページ（修正後ライブラリ）：https://404background.com/program/esp32-dualshock4-library/
 //https://github.com/sandeepmistry/arduino-CAN
 //https://github.com/404background/PS4-esp32
+// https://youtu.be/CZ6PzQZE84U
+// for Arduino Uno
 
 #include <PS4Controller.h>
 #include <CAN.h>
@@ -10,6 +12,8 @@
 #include "MotorDriver.h"
 #include "Auto.h"
 #include "CAN_receive.h"
+#include <ESP32Servo.h>
+#include <stdio.h>
 
 int angleA = 0;
 int move2 = 0;
@@ -24,11 +28,52 @@ char pre_can_send = ' ';
 bool handOnce = 0;
 bool constState = false;
 
+//サーボ諸々
+ESP32PWM pwm;
+
+#define ESC_PIN_1 25  //ESCへの出力ピン
+
+char message[50];  //シリアルモニタへ表示する文字列を入れる変数
+
+Servo esc_1;
+Servo servo2;
+Servo servo3;
+Servo servo4;
+
+int servoHz = 50;
+int minUs1 = 1000;
+int maxUs1 = 2000;
+
+int volume = minUs1;
+
 void setup() {
   Motor_stop();
   Serial.begin(115200);
   PS4.begin();  //write PS4 id Macアドレスを書き込む
   Serial.println("Ready.");
+
+  pinMode(32, INPUT);
+  //サーボモーターの制御信号ピンを指定
+  //そうじ機のモーター
+  servo3.attach(16);
+  //仕分けのモーター
+  servo2.attach(26);
+  servo4.attach(27);
+  ESP32PWM::allocateTimer(0);
+  ESP32PWM::allocateTimer(1);
+  ESP32PWM::allocateTimer(2);
+  ESP32PWM::allocateTimer(3);
+  pwm.attachPin(27, 20000);  //10khz
+
+  esc_1.setPeriodHertz(servoHz);            // Standard 50hz servo
+  esc_1.attach(ESC_PIN_1, minUs1, maxUs1);  //ESCへの出力ピンをアタッチします
+
+  Serial.println("Writing minimum output");
+  esc_1.writeMicroseconds(minUs1);  //ESCへ最小のパルス幅を指示します
+  servo2.write(45);
+
+  Serial.println("Wait 8 seconds. Then motor starts");
+  delay(8000);
 
   MotorDriver_setup();
   RotalyEncoderSetup();
@@ -158,68 +203,67 @@ void PS4_control() {
 
   } else if (PS4.Cross()) {
     Serial.println("CrossButton");
-    CAN.beginPacket(0x12);
-    CAN.write('m');
-    delay(100);
-    CAN.endPacket();
+    while (volume < 1300) {
+      volume += 5;
+      Serial.println(volume);
+    }
+    sprintf(message, "Pulse Width: %d micro sec", volume);  //シリアルモニタに表示するメッセージを作成
+    Serial.println(message);                                //可変抵抗の値をシリアルモニタに表示
+    esc_1.writeMicroseconds(volume);                        // パルス幅 `volume` のPWM信号を送信する
   } else if (PS4.Circle()) {
-    //vacuumBoardフォルダにcan通信
     Serial.println("Circle");
-    CAN.beginPacket(0x12);
-    CAN.write('0');
-    delay(100);
-    CAN.endPacket();
-
     //Ebiを取るときに開けっぱなしにする
     //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
     //constStateは開けっ放しかどうかtrueであきっぱなし
     if (constState == false) {
       Serial.println("constOpen");
+      //開いている状態を維持するかどうか
+      servo2.write(45);
+      servo3.write(30);
+      delay(250);
       constState = true;
+
     } else {
       Serial.println("ret");
+      servo3.write(0);
+      delay(250);
       constState = false;
     }
 
   } else if (PS4.Square()) {
-    //vacuumBoardフォルダにcan通信
-    Serial.println("Square");
-    CAN.beginPacket(0x12);
-    CAN.write('3');
-    delay(100);
-    CAN.endPacket();
-
     //Yuzuを取るときに開けっぱなしにする
     //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
     if (constState == false) {
       Serial.println("constOpen");
+      servo2.write(45);
       constState = true;
+      servo3.write(60);
+      delay(250);
     } else {
       Serial.println("ret");
+      servo3.write(0);
+      delay(250);
       constState = false;
     }
   } else if (PS4.Triangle()) {
-    //vacuumBoardフォルダにcan通信
-    Serial.println("Triangle");
-    CAN.beginPacket(0x12);
-    CAN.write('4');
-    delay(100);
-    CAN.endPacket();
-
     //Noriを取るときに開けっぱなしにする
     //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
     if (constState == false) {
       Serial.println("constOpen");
+      servo2.write(45);
       constState = true;
+      servo3.write(90);
+      delay(250);
     } else {
       Serial.println("ret");
+      servo3.write(0);
+      delay(250);
       constState = false;
     }
   } else {
-    Serial.println('n');
-    CAN.beginPacket(0x12);
-    CAN.write('n');
-    CAN.endPacket();
+    Serial.println("n");
+    volume = 1000;
+    esc_1.writeMicroseconds(volume);
   }
 
   //ラズベリーパイとのシリアル通信
@@ -227,33 +271,29 @@ void PS4_control() {
     String receivedMessage = Serial.readStringUntil('\n');
 
     if (receivedMessage == "M2close") {
-      CAN.beginPacket(0x12);
-      CAN.write('5');
+      servo2.write(0);
       delay(100);
-      CAN.endPacket();
     }
     if (receivedMessage == "M2Open") {
-      CAN.beginPacket(0x12);
-      CAN.write('6');
+      servo2.write(45);
       delay(100);
-      CAN.endPacket();
     }
 
     if (receivedMessage == "EbiM1") {
-      CAN.beginPacket(0x12);
-      CAN.write('7');
+      servo3.write(30);
       delay(100);
-      CAN.endPacket();
+      servo3.write(0);
+      delay(100);
     } else if (receivedMessage == "YuzuM1") {
-      CAN.beginPacket(0x12);
-      CAN.write('8');
+      servo3.write(60);
       delay(100);
-      CAN.endPacket();
+      servo3.write(0);
+      delay(100);
     } else if (receivedMessage == "NoriM1") {
-      CAN.beginPacket(0x12);
-      CAN.write('9');
+      servo3.write(90);
       delay(100);
-      CAN.endPacket();
+      servo3.write(0);
+      delay(100);
     }
   }
 

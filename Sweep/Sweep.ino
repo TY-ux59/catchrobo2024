@@ -1,13 +1,8 @@
-//PS4Controller.hを使用するため、ESP32のバージョンは1.0.6推奨
-//PS4Controller.hに関するページ（環境構築）：https://404background.com/program/esp32-dualshock4/
-//PS4Controller.hに関するページ（修正後ライブラリ）：https://404background.com/program/esp32-dualshock4-library/
-//CAN.hのライブラリ：https://github.com/sandeepmistry/arduino-CAN
-//PS4Controller.hのライブラリ：https://github.com/404background/PS4-esp32
 
+
+#include <ESP32Servo.h>
 #include <PS4Controller.h>
-#include <CAN.h>
 #include "MotorDriver.h"
-#include "CAN_receive.h"
 #include <ESP32Servo.h>
 #include <stdio.h>
 
@@ -24,20 +19,16 @@ char pre_can_send = ' ';
 bool constState = false;
 String button = " ";
 String preButton = " ";
+Servo myservo1;  // create servo object to control a servo
+Servo myservo2;
+Servo myservo3;
+// 16 servo objects can be created on the ESP32
 
-//サーボ諸々
+int pos = 0;  // variable to store the servo position
 ESP32PWM pwm;
-const int escPin1 = 25;
-const int servoPin2 = 26;
-const int servoPin3 = 27;
-//const int servoPin4 = 16;  //仮決定
-
-char message[50];  //シリアルモニタへ表示する文字列を入れる変数
-
-Servo esc_1;
-Servo servo2;
-Servo servo3;
-//Servo servo4;
+int servoPin1 = 26;
+int servoPin2 = 27;
+int servoPin3 = 25;
 
 int servoHz = 50;
 int minUs1 = 1000;
@@ -54,47 +45,41 @@ int M2NoriAngle = 70;
 //そうじ機ノモーターの角度の変数
 int M3CloseAngle = 1;
 int M3OpenAngle = 10;
-
 void setup() {
-  Motor_stop();
-  Serial.begin(115200);
-  PS4.begin();  //write PS4 id Macアドレスを書き込む
-  Serial.println("Ready.");
-
-  pinMode(32, INPUT);
+  // Allow allocation of all timers
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
   ESP32PWM::allocateTimer(2);
   ESP32PWM::allocateTimer(3);
-  //サーボモーターの制御信号ピンを指定
-  //仕分けのモーター
-  servo2.setPeriodHertz(50);
-  servo2.attach(servoPin2, 500, 2400);
-  //そうじ機のモーター
-  servo3.attach(servoPin3, 500, 2400);
-  //仕分け機移動のモーター
-  //servo4.attach(servoPin4, 500, 2500);
-
-  pwm.attachPin(27, 20000);  //10khz
-
-  esc_1.setPeriodHertz(servoHz);          // Standard 50hz servo
-  esc_1.attach(escPin1, minUs1, maxUs1);  //ESCへの出力ピンをアタッチします
-
-  Serial.println("Writing minimum output");
-  esc_1.writeMicroseconds(minUs1);  //ESCへ最小のパルス幅を指示します
-  servo2.write(M2DefaultAngle);
-
-  Serial.println("Wait 8 seconds. Then motor starts");
-  delay(8000);
-
-  MotorDriver_setup();
-  preMillis = millis();
+  myservo1.setPeriodHertz(50);  // standard 50 hz servo
+  myservo2.setPeriodHertz(50);
+  myservo3.setPeriodHertz(50);
+  myservo1.attach(servoPin1, 1000, 2000);  // attaches the servo on pin 18 to the servo object
+  myservo2.attach(servoPin2, 1000, 2000);
+  myservo3.attach(servoPin3, 1000, 2000);
+  // using default min/max of 1000us and 2000us
+  // different servos may require different min/max settings
+  // for an accurate 0 to 180 sweep
 }
+
 void loop() {
-  PS4_control();
-  Motor_stop();
-}
 
+  for (int pos = 0; pos <= 180; pos += 1) {  // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo1.write(pos);  // tell servo to go to position in variable 'pos'
+    delay(15);            // waits 15ms for the servo to reach the position
+  }
+  for (int pos = 0; pos <= 180; pos += 1) {  // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo2.write(pos);  // tell servo to go to position in variable 'pos'
+    delay(15);            // waits 15ms for the servo to reach the position
+  }
+  for (int pos = 0; pos <= 180; pos += 1) {  // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    myservo3.write(pos);  // tell servo to go to position in variable 'pos'
+    delay(15);            // waits 15ms for the servo to reach the position
+  }
+}
 
 void PS4_control() {
   //PS4のコントローラ用
@@ -280,3 +265,4 @@ void PS4_control() {
     digitalWrite(DIR1, HIGH);
   }
 }
+

@@ -22,6 +22,8 @@ char can_receive = ' ';
 char pre_can_receive = ' ';
 char pre_can_send = ' ';
 bool constState = false;
+String button = '';
+String preButton = '';
 
 //サーボ諸々
 ESP32PWM pwm;
@@ -114,56 +116,72 @@ void PS4_control() {
     sprintf(message, "Pulse Width: %d micro sec", volume);  //シリアルモニタに表示するメッセージを作成
     Serial.println(message);                                //可変抵抗の値をシリアルモニタに表示
     esc_1.writeMicroseconds(volume);                        // パルス幅 `volume` のPWM信号を送信する
+    preButton = "Cross";
   } else if (PS4.Circle()) {
-    Serial.println("Circle");
-    //Ebiを取るときに開けっぱなしにする
-    //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
-    //constStateは開けっ放しかどうかtrueであきっぱなし
-    if (constState == false) {
-      Serial.println("constOpen");
-      //開いている状態を維持するかどうか
-      servo2.write(10);
-      servo3.write(30);
-      delay(250);
-      constState = true;
+    button = "Circle";
+    if (button != preButton) {
+      Serial.println(button);
+      //Ebiを取るときに開けっぱなしにする
+      //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
+      //constStateは開けっ放しかどうかtrueであきっぱなし
+      if (constState == false) {
+        Serial.println("constOpen");
+        //開いている状態を維持するかどうか
+        servo2.write(10);
+        constState = true;
+        servo3.write(30);
+        delay(250);
 
-    } else {
-      Serial.println("ret");
-      servo3.write(0);
-      delay(250);
-      constState = false;
+
+      } else {
+        Serial.println("ret");
+        servo3.write(0);
+        delay(250);
+        constState = false;
+      }
+      preButton = button;
     }
-
   } else if (PS4.Square()) {
-    //Yuzuを取るときに開けっぱなしにする
-    //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
-    if (constState == false) {
-      Serial.println("constOpen");
-      servo2.write(10);
-      constState = true;
-      servo3.write(60);
-      delay(250);
-    } else {
-      Serial.println("ret");
-      servo3.write(0);
-      delay(250);
-      constState = false;
+    button = "Square";
+    if (button != preButton) {
+      Serial.println(button);
+      //Yuzuを取るときに開けっぱなしにする
+      //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
+      if (constState == false) {
+        Serial.println("constOpen");
+        servo2.write(10);
+        constState = true;
+        servo3.write(60);
+        delay(250);
+      } else {
+        Serial.println("ret");
+        servo3.write(0);
+        delay(250);
+        constState = false;
+      }
+      preButton = button;
     }
   } else if (PS4.Triangle()) {
-    //Noriを取るときに開けっぱなしにする
-    //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
-    if (constState == false) {
-      Serial.println("constOpen");
-      servo2.write(10);
-      constState = true;
-      servo3.write(90);
-      delay(250);
-    } else {
-      Serial.println("ret");
-      servo3.write(0);
-      delay(250);
-      constState = false;
+    button = "Triangle";
+    if (button != preButton) {
+      Serial.println(button);
+      //Noriを取るときに開けっぱなしにする
+      //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
+      if (constState == false) {
+        Serial.println("constOpen");
+        servo2.write(10);
+        constState = true;
+        servo3.write(90);
+        delay(250);
+      } else {
+        Serial.println("ret");
+        servo3.write(0);
+        delay(250);
+        constState = false;
+      }
+      preButton = button;
     }
+
   } else {
     Serial.println("n");
     volume = 1000;

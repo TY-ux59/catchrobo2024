@@ -61,14 +61,15 @@ void setup() {
   esc_1.setPeriodHertz(servoHz);
   servo2.setPeriodHertz(servoHz);
   servo3.setPeriodHertz(servoHz);
-  // servo4.setPeriodHertz(servoHz);
+  servo4.setPeriodHertz(servoHz);
   esc_1.attach(escPin1, minUs1, maxUs1);
   servo2.attach(servoPin2, 500, 2400);
   servo3.attach(servoPin3, 500, 2400);
-  //servo4.attach(servoPin4, 500, 2500);
+  servo4.attach(servoPin4, 500, 2500);
 
   Serial.println("Writing minimum output");
   servo2.write(M2DefaultAngle);
+  servo3.write(M3CloseAngle);
 
   //ESCの設定
   esc_1.writeMicroseconds(minUs1);
@@ -77,11 +78,8 @@ void setup() {
   preMillis = millis();
 }
 void loop() {
-    for (int pos = 0; pos <= 180; pos += 1) {  // goes from 0 degrees to 180 degrees
-    // in steps of 1 degree
-    servo2.write(pos);  // tell servo to go to position in variable 'pos'
-    delay(15);            // waits 15ms for the servo to reach the position
-  }
+  PS4_control();
+  Motor_stop();
 }
 
 

@@ -7,6 +7,9 @@ const int DIR3 = 22;
 const int PWM4 = 32;
 const int DIR4 = 33;
 
+const int ledcChannel1 = 16;
+const int ledcChannel2 = 15;
+
 void MotorDriver_setup() {
   pinMode(PWM1, OUTPUT);
   pinMode(DIR1, OUTPUT);
@@ -16,10 +19,10 @@ void MotorDriver_setup() {
   pinMode(DIR3, OUTPUT);
   pinMode(PWM4, OUTPUT);
   pinMode(DIR4, OUTPUT);
-  ledcSetup(0, 12800, 8);
-  ledcAttachPin(PWM4, 0);
-  ledcSetup(1, 12800, 8);
-  ledcAttachPin(PWM1, 1);
+  ledcSetup(ledcChannel1, 12800, 8);
+  ledcAttachPin(PWM4, ledcChannel1);
+  ledcSetup(2, 12800, 8);
+  ledcAttachPin(PWM1, ledcChannel2);
 }
 
 void Motor_stop() {

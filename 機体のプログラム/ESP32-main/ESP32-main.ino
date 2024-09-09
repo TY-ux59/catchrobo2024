@@ -68,14 +68,12 @@ void setup() {
   ESP32PWM::allocateTimer(3);
   //サーボモーターの制御信号ピンを指定
   //仕分けのモーター
-  servo2.setPeriodHertz(50);
+  servo3.setPeriodHertz(50);
   servo2.attach(servoPin2, 500, 2400);
   //そうじ機のモーター
   servo3.attach(servoPin3, 500, 2400);
   //仕分け機移動のモーター
   //servo4.attach(servoPin4, 500, 2500);
-
-  pwm.attachPin(27, 20000);  //10khz
 
   esc_1.setPeriodHertz(servoHz);          // Standard 50hz servo
   esc_1.attach(escPin1, minUs1, maxUs1);  //ESCへの出力ピンをアタッチします
@@ -92,7 +90,7 @@ void setup() {
 }
 void loop() {
   PS4_control();
-  Motor_stop();
+Motor_stop();
 }
 
 

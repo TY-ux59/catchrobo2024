@@ -19,10 +19,13 @@ char pre_can_send = ' ';
 bool constState = false;
 String button = " ";
 String preButton = " ";
+
 Servo myservo1;  // create servo object to control a servo
 Servo myservo2;
 Servo myservo3;
 // 16 servo objects can be created on the ESP32
+
+char message[50];
 
 int pos = 0;  // variable to store the servo position
 ESP32PWM pwm;
@@ -45,7 +48,13 @@ int M2NoriAngle = 70;
 //そうじ機ノモーターの角度の変数
 int M3CloseAngle = 1;
 int M3OpenAngle = 10;
+
 void setup() {
+  Motor_stop();
+  Serial.begin(115200);
+  PS4.begin();  //write PS4 id Macアドレスを書き込む
+  Serial.println("Ready.");
+
   // Allow allocation of all timers
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
@@ -57,9 +66,20 @@ void setup() {
   myservo1.attach(servoPin1, 1000, 2000);  // attaches the servo on pin 18 to the servo object
   myservo2.attach(servoPin2, 1000, 2000);
   myservo3.attach(servoPin3, 1000, 2000);
+
+  esc_1.setPeriodHertz(servoHz);          // Standard 50hz servo
+  esc_1.attach(escPin1, minUs1, maxUs1);  //ESCへの出力ピンをアタッチします
   // using default min/max of 1000us and 2000us
   // different servos may require different min/max settings
   // for an accurate 0 to 180 sweep
+  Serial.println("Writing minimum output");
+  esc_1.writeMicroseconds(minUs1);  //ESCへ最小のパルス幅を指示します
+
+  Serial.println("Wait 8 seconds. Then motor starts");
+  delay(8000);
+
+  MotorDriver_setup();
+  preMillis = millis();
 }
 
 void loop() {
@@ -265,4 +285,3 @@ void PS4_control() {
     digitalWrite(DIR1, HIGH);
   }
 }
-

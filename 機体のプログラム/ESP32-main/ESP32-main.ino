@@ -66,6 +66,7 @@ void setup() {
   servo2.attach(servoPin2, 500, 2400);
   servo3.attach(servoPin3, 500, 2400);
   //servo4.attach(servoPin4, 500, 2500);
+
   Serial.println("Writing minimum output");
   servo2.write(M2DefaultAngle);
 
@@ -76,8 +77,11 @@ void setup() {
   preMillis = millis();
 }
 void loop() {
-  PS4_control();
-  Motor_stop();
+    for (int pos = 0; pos <= 180; pos += 1) {  // goes from 0 degrees to 180 degrees
+    // in steps of 1 degree
+    servo2.write(pos);  // tell servo to go to position in variable 'pos'
+    delay(15);            // waits 15ms for the servo to reach the position
+  }
 }
 
 

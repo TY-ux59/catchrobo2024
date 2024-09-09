@@ -5,11 +5,8 @@
 //PS4Controller.hのライブラリ：https://github.com/404background/PS4-esp32
 
 #include <PS4Controller.h>
-#include <CAN.h>
 #include "MotorDriver.h"
-#include "CAN_receive.h"
 #include <ESP32Servo.h>
-#include <stdio.h>
 
 int angleA = 0;
 int move2 = 0;
@@ -26,18 +23,17 @@ String button = " ";
 String preButton = " ";
 
 //サーボ諸々
-ESP32PWM pwm;
 const int escPin1 = 25;
 const int servoPin2 = 26;
 const int servoPin3 = 27;
-//const int servoPin4 = 16;  //仮決定
+const int servoPin4 = 4;
 
 char message[50];  //シリアルモニタへ表示する文字列を入れる変数
 
 Servo esc_1;
-Servo servo2;
-Servo servo3;
-//Servo servo4;
+Servo servo2;   //仕分けのモーター
+Servo servo3;   //そうじ機のモーター
+Servo servo4;   //仕分け機移動のモーター
 
 int servoHz = 50;
 int minUs1 = 1000;
@@ -57,37 +53,26 @@ int M3OpenAngle = 10;
 
 void setup() {
   Motor_stop();
+  MotorDriver_setup();
   Serial.begin(115200);
-  PS4.begin();  //write PS4 id Macアドレスを書き込む
+  PS4.begin();
   Serial.println("Ready.");
 
-  pinMode(32, INPUT);
-  ESP32PWM::allocateTimer(0);
-  ESP32PWM::allocateTimer(1);
-  ESP32PWM::allocateTimer(2);
-  ESP32PWM::allocateTimer(3);
-  //サーボモーターの制御信号ピンを指定
-  //仕分けのモーター
-  servo2.setPeriodHertz(50);
+  esc_1.setPeriodHertz(servoHz);
+  servo2.setPeriodHertz(servoHz);
+  servo3.setPeriodHertz(servoHz);
+  // servo4.setPeriodHertz(servoHz);
+  esc_1.attach(escPin1, minUs1, maxUs1);
   servo2.attach(servoPin2, 500, 2400);
-  //そうじ機のモーター
   servo3.attach(servoPin3, 500, 2400);
-  //仕分け機移動のモーター
   //servo4.attach(servoPin4, 500, 2500);
-
-  pwm.attachPin(27, 20000);  //10khz
-
-  esc_1.setPeriodHertz(servoHz);          // Standard 50hz servo
-  esc_1.attach(escPin1, minUs1, maxUs1);  //ESCへの出力ピンをアタッチします
-
   Serial.println("Writing minimum output");
-  esc_1.writeMicroseconds(minUs1);  //ESCへ最小のパルス幅を指示します
   servo2.write(M2DefaultAngle);
 
+  //ESCの設定
+  esc_1.writeMicroseconds(minUs1);
   Serial.println("Wait 8 seconds. Then motor starts");
   delay(8000);
-
-  MotorDriver_setup();
   preMillis = millis();
 }
 void loop() {
@@ -100,7 +85,7 @@ void PS4_control() {
   //PS4のコントローラ用
   //機体を取る部分を上げ下げする
   if (PS4.Up()) {  //motor2 forward.
-                   //Serial.println("L1 Button");
+    //Serial.println("L1 Button");
     digitalWrite(PWM2, HIGH);
 
     digitalWrite(DIR2, LOW);
@@ -233,12 +218,12 @@ void PS4_control() {
   //Lスティックの反応が悪かったため、Rスティックに変更
   int RStickY = map(PS4.RStickY(), -128, 128, -256, 256);
   if (RStickY <= 20 && RStickY >= -20) {
-    ledcWrite(0, 0);
+    ledcWrite(ledcChannel1, 0);
   } else {
     if (can_receive == 'x') {
       digitalWrite(PWM4, LOW);
     } else {
-      ledcWrite(0, abs(RStickY));
+      ledcWrite(ledcChannel1, abs(RStickY));
     }
   }
   //回転方向
@@ -255,21 +240,21 @@ void PS4_control() {
       if (nowMillis - preMillis >= 100) {
         if (preLStickX >= 20) {
           preLStickX -= 10;
-          ledcWrite(1, abs(preLStickX));
+          ledcWrite(ledcChannel2, abs(preLStickX));
         } else if (LStickX <= -20) {
           preLStickX += 10;
-          ledcWrite(1, abs(preLStickX));
+          ledcWrite(ledcChannel2, abs(preLStickX));
         } else {
           preLStickX = 0;
           LStickFlag = false;
-          ledcWrite(1, 0);
+          ledcWrite(ledcChannel2, 0);
         }
         preMillis = nowMillis;
         Serial.println(LStickX);
       }
     }
   } else {
-    ledcWrite(1, abs(LStickX));
+    ledcWrite(ledcChannel2, abs(LStickX));
     LStickFlag = true;
     preLStickX = LStickX;
   }

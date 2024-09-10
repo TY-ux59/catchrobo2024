@@ -31,9 +31,9 @@ const int servoPin4 = 4;
 char message[50];  //シリアルモニタへ表示する文字列を入れる変数
 
 Servo esc_1;
-Servo servo2;   //仕分けのモーター
-Servo servo3;   //そうじ機のモーター
-Servo servo4;   //仕分け機移動のモーター
+Servo servo2;  //仕分けのモーター
+Servo servo3;  //そうじ機のモーター
+Servo servo4;  //仕分け機移動のモーター
 
 int servoHz = 50;
 int minUs1 = 1000;
@@ -50,6 +50,8 @@ int M2NoriAngle = 70;
 //そうじ機ノモーターの角度の変数
 int M3CloseAngle = 1;
 int M3OpenAngle = 10;
+//サーボ4は360度回転で90で停止する
+int servo4Angle = 90;
 
 void setup() {
   Motor_stop();
@@ -70,6 +72,7 @@ void setup() {
   Serial.println("Writing minimum output");
   servo2.write(M2DefaultAngle);
   servo3.write(M3CloseAngle);
+  servo4.write(90);
 
   //ESCの設定
   esc_1.writeMicroseconds(minUs1);
@@ -97,6 +100,16 @@ void PS4_control() {
 
     digitalWrite(DIR2, HIGH);
     //棒を前後
+  } else if (PS4.Right()) {  //motor2 backward.
+    Serial.println("hello1");
+    servo4Angle += 5;
+    servo4.write(servo4Angle);
+    delay(20);
+  } else if (PS4.Left()) {
+    Serial.println("hello2");
+    servo4Angle -= 5;
+    servo4.write(servo4Angle);
+    delay(20);
   } else if (PS4.L2()) {  //motor3 up.
     //Serial.println("R1 Button");
     digitalWrite(PWM3, HIGH);
@@ -107,8 +120,9 @@ void PS4_control() {
     digitalWrite(DIR3, HIGH);
 
   } else if (PS4.Cross()) {
+    servo3.write(M3CloseAngle);
     Serial.println("CrossButton");
-    while (volume < 1300) {
+    while (volume < 1700) {
       volume += 5;
       Serial.println(volume);
     }
@@ -125,9 +139,7 @@ void PS4_control() {
       //constStateは開けっ放しかどうかtrueであきっぱなし
       if (constState == false) {
         Serial.println("constOpen");
-        //開いている状態を維持するかどうか
-        servo3.write(M3OpenAngle);
-        delay(100);
+
         constState = true;
         servo2.write(M2EbiAngle);
         delay(250);
@@ -149,9 +161,10 @@ void PS4_control() {
       //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
       if (constState == false) {
         Serial.println("constOpen");
-        servo3.write(M3OpenAngle);
         constState = true;
         servo2.write(M2YuzuAngle);
+        delay(250);
+
       } else {
         Serial.println("ret");
         servo2.write(M2DefaultAngle);
@@ -162,23 +175,33 @@ void PS4_control() {
   } else if (PS4.Triangle()) {
     button = "Triangle";
     if (button != preButton) {
+
       Serial.println(button);
       //Noriを取るときに開けっぱなしにする
       //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
       if (constState == false) {
+
         Serial.println("constOpen");
-        servo3.write(M3OpenAngle);
         constState = true;
         servo2.write(M2NoriAngle);
       } else {
         Serial.println("ret");
         servo2.write(M2DefaultAngle);
         constState = false;
+
+        preButton = button;
       }
-      preButton = button;
     }
 
+
+  } else if (PS4.Options()) {
+
+    servo3.write(M3OpenAngle);
+
   } else {
+    //90で停止
+    servo4Angle = 90;
+    servo4.write(servo4Angle);
     Serial.println("n");
     volume = 1000;
     esc_1.writeMicroseconds(volume);

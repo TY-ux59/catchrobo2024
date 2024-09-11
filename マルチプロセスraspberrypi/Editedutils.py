@@ -1,16 +1,3 @@
-# Copyright 2021 The TensorFlow Authors. All Rights Reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 """Utility functions to display the pose detection results."""
 
 import cv2
@@ -37,7 +24,7 @@ def visualize(
   Returns:
     Image with bounding boxes.
   """
-  categorie_names = []
+  categorieName = ''
 
   for detection in detection_result.detections:
     # Draw bounding_box
@@ -49,7 +36,13 @@ def visualize(
     # Draw label and score
     category = detection.categories[0]
     category_name = category.category_name
-    categorie_names.append(category_name)
+    
+    if category_name == 'Ebi':
+      categorieName = 'e'
+    elif category_name == 'Yuzu':
+      categorieName = 'y'
+    else:
+      categorieName = 'n'    
 
     probability = round(category.score, 2)
     result_text = category_name + ' (' + str(probability) + ')'

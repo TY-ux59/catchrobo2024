@@ -36,10 +36,10 @@ Servo servo3;  //そうじ機のモーター
 Servo servo4;  //仕分け機移動のモーター
 
 int servoHz = 50;
-int minUs1 = 1000;
+int minUs1 = 1200;
 int maxUs1 = 2000;
 
-int volume = minUs1;
+float volume = minUs1;
 
 //仕分けノモーターの角度の変数
 int M2DefaultAngle = 1;
@@ -48,8 +48,8 @@ int M2YuzuAngle = 60;
 int M2NoriAngle = 70;
 
 //そうじ機ノモーターの角度の変数
-int M3CloseAngle = 1;
-int M3OpenAngle = 10;
+int M3CloseAngle = 10;
+int M3OpenAngle = 20;
 //サーボ4は360度回転で90で停止する
 int servo4Angle = 90;
 
@@ -101,12 +101,10 @@ void PS4_control() {
     digitalWrite(DIR2, HIGH);
     //棒を前後
   } else if (PS4.Right()) {  //motor2 backward.
-    Serial.println("hello1");
     servo4Angle += 5;
     servo4.write(servo4Angle);
     delay(20);
   } else if (PS4.Left()) {
-    Serial.println("hello2");
     servo4Angle -= 5;
     servo4.write(servo4Angle);
     delay(20);
@@ -123,17 +121,18 @@ void PS4_control() {
     servo3.write(M3CloseAngle);
     Serial.println("CrossButton");
     while (volume < 1700) {
-      volume += 5;
-      Serial.println(volume);
+      volume += 0.2;
+      //Serial.println(volume);
     }
-    sprintf(message, "Pulse Width: %d micro sec", volume);  //シリアルモニタに表示するメッセージを作成
-    Serial.println(message);                                //可変抵抗の値をシリアルモニタに表示
-    esc_1.writeMicroseconds(volume);                        // パルス幅 `volume` のPWM信号を送信する
+    //sprintf(message, "Pulse Width: %d micro sec", volume);  //シリアルモニタに表示するメッセージを作成
+    //Serial.println(message);                                //可変抵抗の値をシリアルモニタに表示
+    esc_1.writeMicroseconds(volume);  // パルス幅 `volume` のPWM信号を送信する
     preButton = "Cross";
   } else if (PS4.Circle()) {
     button = "Circle";
     if (button != preButton) {
-      Serial.println(button);
+      //次の行のprintlnが実行されるとconstOpenが実行されない
+      //Serial.println(button);
       //Ebiを取るときに開けっぱなしにする
       //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
       //constStateは開けっ放しかどうかtrueであきっぱなし
@@ -156,7 +155,8 @@ void PS4_control() {
   } else if (PS4.Square()) {
     button = "Square";
     if (button != preButton) {
-      Serial.println(button);
+      //次の行のprintlnが実行されるとconstOpenが実行されない
+      //Serial.println(button);
       //Yuzuを取るときに開けっぱなしにする
       //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
       if (constState == false) {
@@ -175,8 +175,8 @@ void PS4_control() {
   } else if (PS4.Triangle()) {
     button = "Triangle";
     if (button != preButton) {
-
-      Serial.println(button);
+      //次の行のprintlnが実行されるとconstOpenが実行されない
+      //Serial.println(button);
       //Noriを取るときに開けっぱなしにする
       //仕分け部分のモーターと吸う部分のモーターを開けっぱなしにする
       if (constState == false) {
@@ -202,13 +202,15 @@ void PS4_control() {
     //90で停止
     servo4Angle = 90;
     servo4.write(servo4Angle);
-    Serial.println("n");
+    //Serial.println("n");
     volume = 1000;
     esc_1.writeMicroseconds(volume);
   }
 
+
   //ラズベリーパイとのシリアル通信
   if (Serial.available() > 0) {
+
     String receivedMessage = Serial.readStringUntil('\n');
 
     if (receivedMessage == "M3close") {
@@ -245,11 +247,7 @@ void PS4_control() {
   if (RStickY <= 20 && RStickY >= -20) {
     ledcWrite(ledcChannel1, 0);
   } else {
-    if (can_receive == 'x') {
-      digitalWrite(PWM4, LOW);
-    } else {
-      ledcWrite(ledcChannel1, abs(RStickY));
-    }
+    ledcWrite(ledcChannel1, abs(RStickY));
   }
   //回転方向
   if (RStickY >= 0) {  //left

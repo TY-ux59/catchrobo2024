@@ -7,7 +7,7 @@ const int DIR3 = 22;
 const int PWM4 = 32;
 const int DIR4 = 33;
 
-const int ledcChannel1 = 16;
+const int ledcChannel1 = 14;
 const int ledcChannel2 = 15;
 
 void MotorDriver_setup() {
@@ -21,7 +21,7 @@ void MotorDriver_setup() {
   pinMode(DIR4, OUTPUT);
   ledcSetup(ledcChannel1, 12800, 8);
   ledcAttachPin(PWM4, ledcChannel1);
-  ledcSetup(2, 12800, 8);
+  ledcSetup(ledcChannel2, 12800, 8);
   ledcAttachPin(PWM1, ledcChannel2);
 }
 

@@ -1,4 +1,4 @@
-89i9+++------# Copyright 2021 The TensorFlow Authors. All Rights Reserved.
+# Copyright 2021 The TensorFlow Authors. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,10 @@ import serial
 # シリアルポートの設定
 ser = serial.Serial('COM10', 115200, timeout=1)
 
-def send_message(message):
+def send_message(messages):
+    message = ''
+    for i in range(len(messages)):
+      message = message + ' ' + messages[i] 
     ser.write((message + '\n').encode())
 
 #########################
@@ -99,16 +102,14 @@ def run(model: str, camera_id: int, width: int, height: int, num_threads: int,
     # Draw keypoints and edges on input image
     image, categorie_name = Editedutils.visualize(image, detection_result)
     
-    #EbiYuzuNoriのいずれかが
-    ser.reset_input_buffer()
-    line = ser.readline().decode('ISO-8859-1').rstrip()
+    line = ser.readline().decode('utf-8').strip()
     if line == 'constOpen':
       run = True
       while run:
         line = ser.readline().decode('utf-8').strip()
         if line == 'ret':
           run = False
-    
+      
     categorie_names.append(categorie_name)
     #categorie_namesが3回同じ物体を検出したとき命令を出す
     if len(categorie_names) == 3:

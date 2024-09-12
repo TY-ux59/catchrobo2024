@@ -211,12 +211,13 @@ void PS4_control() {
   //ラズベリーパイとのシリアル通信
   if (Serial.available() > 0) {
 
-    String receivedMessage = Serial.readStringUntil('\n');
+    int receivedMessage = Serial.read();
 
-    if (receivedMessage == "M3close") {
+    if (receivedMessage == 51) {
       servo3.write(M3CloseAngle);
       delay(100);
     }
+
     //吸う時に閉じる必要ができたので必要ない
     /*
     if (receivedMessage == "M3Open") {
@@ -224,18 +225,19 @@ void PS4_control() {
       delay(100);
     }*/
 
-    if (receivedMessage == "e") {
-      Serial.write("ebi");
+    if (receivedMessage == 101) {
+      //Serial.write("ebi");
       servo2.write(M2EbiAngle);
       delay(100);
       servo2.write(M2DefaultAngle);
       delay(100);
-    } else if (receivedMessage == "y") {
+    } else if (receivedMessage == 121) {
+      //Serial.write("yuzu");
       servo2.write(M2YuzuAngle);
       delay(100);
       servo2.write(M2DefaultAngle);
       delay(100);
-    } else if (receivedMessage == "n") {
+    } else if (receivedMessage == 110) {
       servo2.write(M2NoriAngle);
       delay(100);
       servo2.write(M2DefaultAngle);

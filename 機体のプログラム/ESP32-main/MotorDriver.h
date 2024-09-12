@@ -7,7 +7,7 @@ const int DIR3 = 22;
 const int PWM4 = 32;
 const int DIR4 = 33;
 
-const int ledcChannel1 = 14;
+const int ledcChannel1 = 13;
 const int ledcChannel2 = 15;
 
 void MotorDriver_setup() {

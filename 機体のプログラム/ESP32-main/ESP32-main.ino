@@ -36,20 +36,21 @@ Servo servo3;  //そうじ機のモーター
 Servo servo4;  //仕分け機移動のモーター
 
 int servoHz = 50;
-int minUs1 = 1200;
+int minUs1 = 1000;
 int maxUs1 = 2000;
 
-float volume = minUs1;
+float volume = 1000;
 
 //仕分けノモーターの角度の変数
-int M2DefaultAngle = 1;
-int M2EbiAngle = 30;
-int M2YuzuAngle = 60;
+int M2DefaultAngle = 0;
+int M2EbiAngle = 20;
+int M2YuzuAngle = 40;
 int M2NoriAngle = 70;
+bool M2isRight = true;
 
 //そうじ機ノモーターの角度の変数
-int M3CloseAngle = 10;
-int M3OpenAngle = 20;
+int M3CloseAngle = 18;
+int M3OpenAngle = 45;
 //サーボ4は360度回転で90で停止する
 int servo4Angle = 90;
 
@@ -69,10 +70,18 @@ void setup() {
   servo3.attach(servoPin3, 500, 2400);
   servo4.attach(servoPin4, 500, 2500);
 
+  if (M2isRight == true) {
+    M2DefaultAngle = 180 - M2DefaultAngle;
+    M2EbiAngle = 180 - M2EbiAngle;
+    M2YuzuAngle = 180 - M2YuzuAngle;
+    M2NoriAngle = 180 - M2NoriAngle;
+  }
+
   Serial.println("Writing minimum output");
   servo2.write(M2DefaultAngle);
   servo3.write(M3CloseAngle);
   servo4.write(90);
+
 
   //ESCの設定
   esc_1.writeMicroseconds(minUs1);

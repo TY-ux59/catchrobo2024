@@ -217,22 +217,25 @@ void PS4_control() {
       servo3.write(M3CloseAngle);
       delay(100);
     }
+    //吸う時に閉じる必要ができたので必要ない
+    /*
     if (receivedMessage == "M3Open") {
       servo3.write(M3CloseAngle);
       delay(100);
-    }
+    }*/
 
-    if (receivedMessage == "Ebi") {
+    if (receivedMessage == "e") {
+      Serial.write("ebi");
       servo2.write(M2EbiAngle);
       delay(100);
       servo2.write(M2DefaultAngle);
       delay(100);
-    } else if (receivedMessage == "Yuzu") {
+    } else if (receivedMessage == "y") {
       servo2.write(M2YuzuAngle);
       delay(100);
       servo2.write(M2DefaultAngle);
       delay(100);
-    } else if (receivedMessage == "Nori") {
+    } else if (receivedMessage == "n") {
       servo2.write(M2NoriAngle);
       delay(100);
       servo2.write(M2DefaultAngle);

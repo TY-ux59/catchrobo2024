@@ -43,8 +43,8 @@ float volume = 1000;
 
 //仕分けノモーターの角度の変数
 int M2DefaultAngle = 95;
-int M2EbiAngle = 35;
-int M2YuzuAngle = 55;
+int M2EbiAngle = 25;
+int M2YuzuAngle = 48;
 int M2NoriAngle = 75;
 bool M2isRight = false;
 
@@ -193,6 +193,7 @@ void PS4_control() {
         Serial.println("constOpen");
         constState = true;
         servo2.write(M2NoriAngle);
+        delay(250);
       } else {
         Serial.println("ret");
         servo2.write(M2DefaultAngle);
@@ -224,6 +225,7 @@ void PS4_control() {
   if (Serial.available() > 0) {
 
     int receivedMessage = Serial.read();
+    Serial.println(receivedMessage);
 
     if (receivedMessage == 51) {
       servo3.write(M3CloseAngle);
@@ -238,11 +240,11 @@ void PS4_control() {
     }*/
 
     if (receivedMessage == 101) {
-      //Serial.write("ebi");
+      Serial.write("ebi");
       servo2.write(M2EbiAngle);
       delay(100);
     } else if (receivedMessage == 121) {
-      //Serial.write("yuzu");
+      Serial.write("yuzu");
       servo2.write(M2YuzuAngle);
       delay(100);
     } else if (receivedMessage == 110) {

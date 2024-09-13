@@ -54,6 +54,9 @@ int M3OpenAngle = 45;
 //サーボ4は360度回転で90で停止する
 int servo4Angle = 90;
 
+//ここを追加！！！！！！！！！！！！！！！！！！！！！
+bool raspiConnection = true;
+
 void setup() {
   Motor_stop();
   MotorDriver_setup();
@@ -211,6 +214,17 @@ void PS4_control() {
     servo2.write(M2DefaultAngle);
     delay(100);
 
+  } else if (PS4.Share()) {
+    button = "Share";
+    if (button != preButton) {
+        if( raspiConnection = true;){
+          raspiConnection = false;
+        }else{
+          raspiConnection = true;
+        }
+      }
+      preButton = button;
+    }
   } else {
     //90で停止
     servo4Angle = 90;
@@ -222,12 +236,11 @@ void PS4_control() {
 
 
   //ラズベリーパイとのシリアル通信
-  if (Serial.available() > 0) {
+  if (Serial.available() > 0 && raspiConnection == true) {
 
     int receivedMessage = Serial.read();
-    Serial.println(receivedMessage);
 
-    if (receivedMessage == 51) {
+    if (receivedMessage == 120) {
       servo3.write(M3CloseAngle);
       delay(100);
     }
@@ -240,11 +253,11 @@ void PS4_control() {
     }*/
 
     if (receivedMessage == 101) {
-      Serial.write("ebi");
+      //Serial.write("ebi");
       servo2.write(M2EbiAngle);
       delay(100);
     } else if (receivedMessage == 121) {
-      Serial.write("yuzu");
+      //Serial.write("yuzu");
       servo2.write(M2YuzuAngle);
       delay(100);
     } else if (receivedMessage == 110) {

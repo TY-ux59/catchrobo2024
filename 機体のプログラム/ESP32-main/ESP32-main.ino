@@ -42,11 +42,11 @@ int maxUs1 = 2000;
 float volume = 1000;
 
 //仕分けノモーターの角度の変数
-int M2DefaultAngle = 80;
-int M2EbiAngle = 20;
-int M2YuzuAngle = 40;
-int M2NoriAngle = 70;
-bool M2isRight = true;
+int M2DefaultAngle = 95;
+int M2EbiAngle = 35;
+int M2YuzuAngle = 55;
+int M2NoriAngle = 75;
+bool M2isRight = false;
 
 //そうじ機ノモーターの角度の変数
 int M3CloseAngle = 18;
@@ -71,10 +71,10 @@ void setup() {
   servo4.attach(servoPin4, 500, 2500);
 
   if (M2isRight == true) {
-    M2DefaultAngle = 180 - M2DefaultAngle;
-    M2EbiAngle = 180 - M2EbiAngle;
-    M2YuzuAngle = 180 - M2YuzuAngle;
-    M2NoriAngle = 180 - M2NoriAngle;
+    M2DefaultAngle = 100;
+    M2EbiAngle = 160;
+    M2YuzuAngle = 140;
+    M2NoriAngle = 110;
   }
 
   Serial.println("Writing minimum output");

@@ -42,7 +42,7 @@ int maxUs1 = 2000;
 float volume = 1000;
 
 //仕分けノモーターの角度の変数
-int M2DefaultAngle = 0;
+int M2DefaultAngle = 80;
 int M2EbiAngle = 20;
 int M2YuzuAngle = 40;
 int M2NoriAngle = 70;
@@ -206,6 +206,9 @@ void PS4_control() {
   } else if (PS4.Options()) {
 
     servo3.write(M3OpenAngle);
+    delay(100);
+    servo2.write(M2DefaultAngle);
+    delay(100);
 
   } else {
     //90で停止
@@ -238,18 +241,12 @@ void PS4_control() {
       //Serial.write("ebi");
       servo2.write(M2EbiAngle);
       delay(100);
-      servo2.write(M2DefaultAngle);
-      delay(100);
     } else if (receivedMessage == 121) {
       //Serial.write("yuzu");
       servo2.write(M2YuzuAngle);
       delay(100);
-      servo2.write(M2DefaultAngle);
-      delay(100);
     } else if (receivedMessage == 110) {
       servo2.write(M2NoriAngle);
-      delay(100);
-      servo2.write(M2DefaultAngle);
       delay(100);
     }
   }

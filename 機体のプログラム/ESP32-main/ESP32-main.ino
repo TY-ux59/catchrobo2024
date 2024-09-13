@@ -215,6 +215,7 @@ void PS4_control() {
     delay(100);
 
   } else if (PS4.Share()) {
+    //間違えてshareボタンをおしてしまった場合を想定
     button = "Share";
     if (button != preButton) {
         if( raspiConnection = true;){

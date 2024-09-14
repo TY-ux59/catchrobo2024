@@ -41,12 +41,12 @@ int maxUs1 = 2000;
 
 float volume = 1000;
 
-//仕分けノモーターの角度の変数
-int M2DefaultAngle = 95;
-int M2EbiAngle = 25;
-int M2YuzuAngle = 48;
-int M2NoriAngle = 75;
-bool M2isRight = false;
+//仕分けノモーターの角度のtrueの時の角度
+//bool M2isLeft = true;
+int M2DefaultAngle = 172;
+int M2EbiAngle = 80;
+int M2YuzuAngle = 135;
+int M2NoriAngle = 127;
 
 //そうじ機ノモーターの角度の変数
 int M3CloseAngle = 18;
@@ -72,13 +72,6 @@ void setup() {
   servo2.attach(servoPin2, 500, 2400);
   servo3.attach(servoPin3, 500, 2400);
   servo4.attach(servoPin4, 500, 2500);
-
-  if (M2isRight == true) {
-    M2DefaultAngle = 100;
-    M2EbiAngle = 160;
-    M2YuzuAngle = 140;
-    M2NoriAngle = 110;
-  }
 
   Serial.println("Writing minimum output");
   servo2.write(M2DefaultAngle);
@@ -180,6 +173,7 @@ void PS4_control() {
       } else {
         Serial.println("ret");
         servo2.write(M2DefaultAngle);
+        delay(250);
         constState = false;
       }
       preButton = button;
@@ -200,6 +194,7 @@ void PS4_control() {
       } else {
         Serial.println("ret");
         servo2.write(M2DefaultAngle);
+        delay(250);
         constState = false;
 
         preButton = button;
@@ -208,24 +203,27 @@ void PS4_control() {
 
 
   } else if (PS4.Options()) {
-
-    servo3.write(M3OpenAngle);
-    delay(100);
-    servo2.write(M2DefaultAngle);
-    delay(100);
-
+    button = "Options";
+    if (button != preButton) {
+      constState = !constState;
+      servo3.write(M3OpenAngle);
+      delay(100);
+      servo2.write(M2DefaultAngle);
+      delay(100);
+      Serial.println()
+    }
+    preButton = button;
   } else if (PS4.Share()) {
     //間違えてshareボタンをおしてしまった場合を想定
     button = "Share";
     if (button != preButton) {
-        if( raspiConnection = true;){
-          raspiConnection = false;
-        }else{
-          raspiConnection = true;
-        }
+      if (raspiConnection == true) {
+        raspiConnection = false;
+      } else {
+        raspiConnection = true;
       }
-      preButton = button;
     }
+    preButton = button;
   } else {
     //90で停止
     servo4Angle = 90;
